@@ -6,7 +6,7 @@ import numpy as np
 # From the Kaggle site: 
 #  "Submissions will be evaluated based on their mean F1 score."
 # I think this means the average F1 score for each prediction on a single test set?
-# Not an average (over e.g. test sets) of some global F score?
+# Not an average (over e.g. test sets) of some global F1 score?
 #
 def f1score(pred, obs):
     '''
