@@ -35,3 +35,29 @@ def f1score(pred, obs):
             scores.append( 2 * precision * recall / (precision + recall) )
 
     return np.mean(scores)
+
+
+def f1score_global(pred, obs):
+    '''
+    Expected inputs are equal-length lists of sets: pred are the sets of 
+    products reordered by a given customer as predicted by some model, and
+    obs are the actual items observed to be ordered by the same customer.
+    '''
+
+    assert len(pred) == len(obs)
+    scores = []
+    TP = FP = FN = 0
+    for pr, ob in zip(pred, obs):
+
+        tp = len(pr & ob)
+        fp = len(pr) - tp
+        fn = len(ob) - tp
+
+        TP += tp
+        FP += fp
+        FN += fn
+
+    precision = float(TP) / (TP + FP)
+    recall = float(TP) / (TP + FN)
+
+    return 2 * precision * recall / (precision + recall)
