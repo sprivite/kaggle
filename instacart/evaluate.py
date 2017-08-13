@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 # 
 # F1 score for evaluating model predictions
@@ -14,20 +15,18 @@ def f1score(pred, obs):
     products reordered by a given customer as predicted by some model, and
     obs are the actual items observed to be ordered by the same customer.
     '''
-    
     assert len(pred) == len(obs)
     scores = []
     for pr, ob in zip(pred, obs):
 
         if not pr:
-            precision = 1.
-        else:
-            precision = len(pr & ob) / float(len(pr))
+            pr = set([None])
 
         if not ob:
-            recall = 1.
-        else:
-            recall = len(pr & ob) / float(len(ob))
+            ob = set([None])
+
+        precision = len(pr & ob) / float(len(pr))
+        recall = len(pr & ob) / float(len(ob))
 
         if precision == recall == 0:
             scores.append(0) # this removes the discontinuity at (0,0)
