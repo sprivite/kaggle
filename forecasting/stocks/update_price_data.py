@@ -6,9 +6,10 @@ need to first claim an API key via:
 
 Usage: python update_price_data.py SYMBOLS APIKEY
 
-where APIKEY is the path to a plain text file containing your API
-key and SYMBOLS is a newline-delimited plain text file containing
-the list of symbols you want to download.
+where APIKEY is the path to a plain text file containing your API key
+and SYMBOLS is a CSV-formatted file whose first column is the symbol
+value you wish to download; the file is assumed to have a header and
+the first row is therefore skipped.
 
 The script is barebones and does nothing fancy for you. It "updates"
 the data by simply downloading it all again via the API. Use with
@@ -47,7 +48,7 @@ if not len(sys.argv) == 3:
 
 # read symbols and API key
 SYMBOLS, APIKEY = sys.argv[1:]
-symbols = list(filter(lambda x: x, open(SYMBOLS, 'r').read().split('\n')))
+symbols = pd.read_csv(SYMBOLS, usecols=[0]).values[:, 0]
 apikey = open(APIKEY, 'r').read()
 
 # TODO: support other modes
