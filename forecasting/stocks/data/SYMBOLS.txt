@@ -1,0 +1,5 @@
+NVDA
+SPY
+INTC
+FB
+GOOG
