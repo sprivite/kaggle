@@ -90,14 +90,16 @@ function = 'TIME_SERIES_DAILY'
 # to 4 requests per 65 seconds. It seems to keep the server happy.
 max_requests = 4
 time_buffer = 65
-history = deque([-time_buffer]*max_requests, maxlen=max_requests+1)
+history = deque([-time_buffer]*max_requests, maxlen=max_requests)
 t0 = time.time()
 for symbol in symbols:
 
-    history.append(time.time() - t0)
-    sleepy_time = time_buffer - (history[-1] - history[0])
+
+    tnow = time.time() - t0
+    sleepy_time = time_buffer - (tnow - history[0])
     if sleepy_time > 0:
         print('Sleeping {} seconds to respect API request limits ...'.format(sleepy_time))
         time.sleep(sleepy_time)
 
+    history.append(time.time() - t0)
     get_price_data(symbol, apikey, function)
