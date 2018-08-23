@@ -21,8 +21,7 @@ caution.
 
 Hint: you can get all historical data by running:
   python update_symbol_metadata.py
-  python update_price_data.py data/SYMBOLS_NYSE.csv data/APIKEY.txt
-  python update_price_data.py data/SYMBOLS_NASDAQ.csv data/APIKEY.txt
+  python update_price_data.py <(cat data/SYMBOLS_NYSE.csv data/SYMBOLS_NASDAQ.csv) data/APIKEY.txt
 
 '''
 
@@ -78,7 +77,7 @@ function = 'TIME_SERIES_DAILY'
 # track times of last requests to avoid getting VOID responses
 # according to the website, the limit is five requests per minute in
 # practice, we have to stick a little bit below that; here I throttle
-# to 4 requests per 65 seconds. It seems to keep the serve happy.
+# to 4 requests per 65 seconds. It seems to keep the server happy.
 max_requests = 4
 time_buffer = 65
 history = deque([-time_buffer]*max_requests, maxlen=max_requests+1)
