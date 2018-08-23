@@ -4,6 +4,10 @@ Download historical stock price data from alphavantage. To use, you
 need to first claim an API key via:
   https://www.alphavantage.co/support/#api-key
 
+NB: It turns out this API throttles requests to five per minute, so
+I have to add a sleeping mechanism here for now, until I find a better
+data source.
+
 Usage: python update_price_data.py SYMBOLS APIKEY
 
 where APIKEY is the path to a plain text file containing your API key
@@ -15,8 +19,15 @@ The script is barebones and does nothing fancy for you. It "updates"
 the data by simply downloading it all again via the API. Use with
 caution.
 
+Hint: you can get all historical data by running:
+  python update_symbol_metadata.py
+  python update_price_data.py data/SYMBOLS_NYSE.csv data/APIKEY.txt
+  python update_price_data.py data/SYMBOLS_NASDAQ.csv data/APIKEY.txt
+
 '''
 
+from collections import deque
+import time
 import sys
 import urllib
 import pandas as pd
@@ -25,8 +36,9 @@ import pandas as pd
 def get_price_data(symbol, apikey, function, verbose=1):
     '''
     Get historical price data for a given symbol.
+
     '''
-    
+
     dest = 'data/{symbol}_{function}.csv'.format(function=function, symbol=symbol)
 
     if verbose:
@@ -37,7 +49,11 @@ def get_price_data(symbol, apikey, function, verbose=1):
         format(symbol=symbol, apikey=apikey, function=function)
     )
     fd = open(dest, 'w')
-    fd.write(str(response.read().decode()))
+    result = str(response.read().decode())
+    if 'Information' in result: # something went wrong
+        print(symbol, result)
+        raise
+    fd.write(result)
     fd.close()
 
 
@@ -54,6 +70,25 @@ apikey = open(APIKEY, 'r').read()
 # TODO: support other modes
 function = 'TIME_SERIES_DAILY'
 
-# query API
+
+#
+# query API for price data
+#
+
+# track times of last requests to avoid getting VOID responses
+# according to the website, the limit is five requests per minute in
+# practice, we have to stick a little bit below that; here I throttle
+# to 4 requests per 65 seconds. It seems to keep the serve happy.
+max_requests = 4
+time_buffer = 65
+history = deque([-time_buffer]*max_requests, maxlen=max_requests+1)
+t0 = time.time()
 for symbol in symbols:
+
+    history.append(time.time() - t0)
+    sleepy_time = time_buffer - (history[-1] - history[0])
+    if sleepy_time > 0:
+        print('Sleeping {} seconds to respect API request limits ...'.format(sleepy_time))
+        time.sleep(sleepy_time)
+
     get_price_data(symbol, apikey, function)
