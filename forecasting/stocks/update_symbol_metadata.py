@@ -39,6 +39,12 @@ def get_all_symbols():
         df = df[df.MarketCap > 0] # entries with 0 marketcap are suspicious, remove
         df.to_csv(dest, index=False)
 
+        # get a convenient list of "interesting" symbols with large market cap
+        nsymbols = 50
+        fd = open('data/SYMBOLS_{exchange}_TOP_{n}_MARKET_CAP.txt'.format(exchange=exchange, n=nsymbols), 'w')
+        fd.write('Symbol\n')
+        fd.write('\n'.join( df.sort_values('MarketCap', ascending=False).head(nsymbols).Symbol.values ))
+        fd.close()
 
     return
 
