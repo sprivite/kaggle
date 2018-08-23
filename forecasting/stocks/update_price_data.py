@@ -49,11 +49,21 @@ def get_price_data(symbol, apikey, function, verbose=1):
     )
     fd = open(dest, 'w')
     result = str(response.read().decode())
-    if 'Information' in result: # something went wrong
-        print(symbol, result)
-        raise
-    fd.write(result)
-    fd.close()
+    if 'Information' in result:
+        # something went wrong
+        # despite my best effort to respect the API limits, I still get
+        # angry server responses ... at this point, take a deep breath
+        # and start again
+        fd.close()
+        print('Sleeping 60 seconds to respect API request limits ...')
+        time.sleep(60)
+        get_price_data(symbol, apikey, function, verbose)
+
+    else:
+        fd.write(result)
+        fd.close()
+
+    return
 
 
 if not len(sys.argv) == 3:
