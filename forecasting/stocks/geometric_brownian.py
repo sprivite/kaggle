@@ -30,11 +30,10 @@ window = int(sys.argv[2])
 symbols = pd.read_csv(SYMBOLS, usecols=[0]).values[:, 0]
 stats = pd.DataFrame(index=symbols, columns=['mu', 'sigma', 'net_drift'])
 for symbol in symbols:
-    print(symbol,)
+
     stocks = pd.read_csv(
         'data/{}_TIME_SERIES_DAILY.csv'.format(symbol)
     ).sort_values('timestamp', ascending=True).set_index('timestamp')
-
 
     # compute fractional price changes
     Pt = stocks.open.values
@@ -52,6 +51,5 @@ for symbol in symbols:
     stats.loc[symbol].mu = mu
     stats.loc[symbol].sigma = sigma
     stats.loc[symbol].net_drift = mu - sigma**2 / 2
-    print(stats.loc[symbol].as_matrix())
 
 print(stats.sort_values('net_drift', ascending=False))
